@@ -1,0 +1,19 @@
+[Unit]
+Description=ozbot telegram bot
+After=multi-user.target
+
+[Service]
+Type=simple
+Environment=OZBOT_HOME=/opt/OzElectroBot
+Environment=PYTHON_HOME=/opt/OzElectroBot/flask
+Environment=APP_SETTINGS=config.DevelopmentConfig
+Environment=DB_SERVICE=
+Environment=DB_URL=postgresql://ozbot@localhost/ozbot
+PIDFile=/var/run/ozbot.pid
+WorkingDirectory=/opt/OzElectroBot
+StandardOutput=syslog+console
+ExecStart=/opt/OzElectroBot/flask/bin/python3 /opt/OzElectroBot/ozbot.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
