@@ -77,7 +77,6 @@ class Station(object):
 					else:
 						fmt='{0:d} - + {1:s} - {2:s}'
 					action = Action(fmt.format(idx+1,schedule_item.arrival.strftime('%H:%M'),schedule_item.destination_title),{constants.ACTION_FLAG_REQUEST_NONE})
-#					action = Action(fmt.format(idx+1,schedule_item.arrival.strftime('%H:%M'),schedule_item.uid),{constants.ACTION_FLAG_REQUEST_NONE})
 					actions.append(action)
 				idx+=1
 

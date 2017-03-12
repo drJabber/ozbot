@@ -8,6 +8,8 @@ from oz_application import app
 from stopitem import StopItem
 
 def load_schedule(code, direction):
+	schedule=[ ]
+
 	now=dt.datetime.now()
 
 	rq_text="https://api.rasp.yandex.net/v1.0/schedule/?apikey=" + app.config['YANDEX_TOKEN'] + \
@@ -18,30 +20,78 @@ def load_schedule(code, direction):
 		rq_text=rq_text+"&direction="+direction
 
 	rq=requests.get(rq_text+"&date=" + now.strftime('%Y-%m-%d'))
-	rq_schedule = rq.json()["schedule"]
 
-	schedule=[ ]
+	rqj=rq.json()
+	if 'schedule' in rqj:
+		rq_schedule = rqj["schedule"]
 
-#	trips today after now
-	for sh_item in rq_schedule:
-		item=ScheduleItem(sh_item)
-		dtt=item.departure
-		if item.arrival:
-			dtt=item.arrival
-		if dtt>now:
-			schedule.append(item)
+
+#		trips today after now
+		for sh_item in rq_schedule:
+			item=ScheduleItem(sh_item)
+			dtt=item.departure
+			if item.arrival:
+				dtt=item.arrival
+			if dtt>now:
+				schedule.append(item)
 
 	rq=requests.get(rq_text+"&date=" + (now+dt.timedelta(days=1)).strftime('%Y-%m-%d'))
-	rq_schedule = rq.json()["schedule"]
 
-#	trips tomorrow before this time
-	for sh_item in rq_schedule:
-		item=ScheduleItem(sh_item)
-		dtt=item.departure
-		if item.arrival:
-			dtt=item.arrival
-		if dtt<=(now+dt.timedelta(days=1)):
-			schedule.append(item)
+	rqj=rq.json()
+	if 'schedule' in rqj:
+		rq_schedule = rqj["schedule"]
+
+#		trips tomorrow before this time
+		for sh_item in rq_schedule:
+			item=ScheduleItem(sh_item)
+			dtt=item.departure
+			if item.arrival:
+				dtt=item.arrival
+			if dtt<=(now+dt.timedelta(days=1)):
+				schedule.append(item)
+
+	return schedule
+
+def load_custom_schedule(source_code, target_code):
+	schedule=[ ]
+
+	now=dt.datetime.now()
+
+	rq_text="https://api.rasp.yandex.net/v1.0/search/?apikey=" + app.config['YANDEX_TOKEN'] + \
+                         "&format=json&from=" + source_code + \
+                         "&to="+target_code +\
+                         "&lang=ru&transport_types=suburban&event=departure&system=yandex"
+
+	rq=requests.get(rq_text+"&date=" + now.strftime('%Y-%m-%d'))
+
+	rqj=rq.json()
+	if 'threads' in rqj:
+		rq_schedule = rqj["threads"]
+
+
+#		trips today after now
+		for sh_item in rq_schedule:
+			item=ScheduleItem(sh_item)
+			dtt=item.departure
+			if item.arrival:
+				dtt=item.arrival
+			if dtt>now:
+				schedule.append(item)
+
+	rq=requests.get(rq_text+"&date=" + (now+dt.timedelta(days=1)).strftime('%Y-%m-%d'))
+
+	rqj=rq.json()
+	if 'threads' in rqj:
+		rq_schedule = rqj["threads"]
+
+#			trips tomorrow before this time
+		for sh_item in rq_schedule:
+			item=ScheduleItem(sh_item)
+			dtt=item.departure
+			if item.arrival:
+				dtt=item.arrival
+			if dtt<=(now+dt.timedelta(days=1)):
+				schedule.append(item)
 
 	return schedule
 

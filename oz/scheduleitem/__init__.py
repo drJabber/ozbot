@@ -23,11 +23,30 @@ class ScheduleItem(object):
 			self.destination_title=self.extract_destination(self.short_title)
 
 			self.stops=json_item['stops']
-			self.days=json_item['days']
-			self.except_days=json_item['except_days']
 
-			self.iz_fuzzy=json_item['is_fuzzy']
-			self.platform=json_item['platform']
+			self.days=''
+			if 'days' in json_item:
+				self.days=json_item['days']
+
+			self.except_days=''
+			if 'except_days' in json_item:
+				self.except_days=json_item['except_days']
+
+			self.is_fuzzy=False
+			if 'is_fuzzy' in json_item:
+				self.iz_fuzzy=json_item['is_fuzzy']
+
+			self.platform=''
+			if 'platform' in json_item:
+				self.platform=json_item['platform']
+
+			self.from_title=''
+			if 'from' in json_item:
+				self.from_title=json_item['from']['title']
+
+			self.to_title=''
+			if 'to' in json_item:
+				self.to_title=json_item['to']['title']
 
 			self.stops=None
 			self.stops_page=0
@@ -47,8 +66,11 @@ class ScheduleItem(object):
 			self.days=''
 			self.except_days=''
 
-			self.iz_fuzzy=false
+			self.is_fuzzy=False
 			self.platform=''
+
+			self.from_title=''
+			self.to_title=''
 
 			self.stops=None
 			self.stops_page=0

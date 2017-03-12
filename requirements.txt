@@ -2,3 +2,10 @@ flask
 pickle
 requests
 python-telegram-bot
+sqlalchemy
+geoalchemy2
+flask_sqlalchemy
+pandas
+numpy
+csv
+json

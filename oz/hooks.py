@@ -4,7 +4,7 @@ import logging
 from enum import IntEnum
 from telegram.ext import Updater, Dispatcher, CommandHandler, MessageHandler, Filters, Job
 
-from oz.handlers import queue_reply, start,error,location,msg
+from oz.handlers import queue_reply, start,help,error,location,msg
 
 from .config import basedir
 from .oz_application import app,log_handler
@@ -33,6 +33,7 @@ class TelegramHooks:
 	def setup_handlers(self):
 	    dp=self.updater.dispatcher
 	    dp.add_handler(CommandHandler("start",start))
+	    dp.add_handler(CommandHandler("help",help))
 	    dp.add_handler(MessageHandler([Filters.location], location))
 	    dp.add_handler(MessageHandler([Filters.text], msg))
 	    dp.add_error_handler(error)

@@ -31,7 +31,11 @@ def _reply(c_id, bot, txt, actions=None, location=None, repeat=True):
 
 		reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, one_time_keyboard=True)
 		try:
-			bot.sendMessage(c_id, text=txt, reply_markup=reply_markup, parse_mode=telegram.ParseMode.MARKDOWN)
+			if len(custom_keyboard)>0:
+				bot.sendMessage(c_id, text=txt, reply_markup=reply_markup, parse_mode=telegram.ParseMode.MARKDOWN)
+			else:
+				bot.sendMessage(c_id, text=txt)
+
 		except Exception as e:
 			if not repeat:
 				raise e
@@ -103,6 +107,38 @@ def start(bot, update):
 	if len(msg) > 0 :
 		reply(c_id, bot, msg, actions)
 
+def help(bot, update):
+	c_id = update.message.chat_id
+	global msg,actions
+	msg = ''
+	actions = None
+
+	bot.logger.info('ozbot: %s' % ('help'))
+	def rep(txt, actns=None):
+		global msg, actions
+
+		if len(msg) + len(txt) + 2 >= 4096:
+			reply(c_id, bot, msg, actions)
+
+			msg = ''
+			actions = None
+
+
+		msg += '\n\n'
+		msg += txt
+
+		if actns:
+			actions = actns
+
+	username = ''
+	try:
+		username = bot.getChat(c_id)['username']
+	except:
+		pass
+
+	sessionmanager.show_help(c_id, username if len(username) > 0 else None, rep)
+	if len(msg) > 0 :
+		reply(c_id, bot, msg, actions)
 
 def location(bot,update):
 	c_id = update.message.chat_id
@@ -127,10 +163,9 @@ def location(bot,update):
 		if actns:
 			actions = actns
 
-	sessionmanager.show_source_stations(c_id, update.message.location, rep)
+	sessionmanager.process_location(c_id, update.message.location, rep)
 	if len(msg) > 0 :
 		reply(c_id, bot, msg, actions)
-#	stationsmanager.get_stations(bot, update.message.location)
 
 
 def msg(bot, update):
@@ -166,16 +201,10 @@ def msg(bot, update):
 	except:
 		pass
 
-	sessionmanager.message(c_id, rep, update.message.text)
+	sessionmanager.message(c_id, rep, update.message.text.strip())
 	if len(msg) > 0 :
-#		if location:
-#			bot.logger.info('ozbot: loc')
 		reply(c_id, bot, msg, actions,location)
 
-
-def help(bot,update):
-	bot.logger.info('ozbot: help')
-	update.message.reply_text("Список команд:\n/ping - ping")
 
 def error(bot, update, error):
 	bot.logger.warn('Ошибка: %s (%s)' % (update, error))

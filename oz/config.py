@@ -9,14 +9,14 @@ class Config(object):
     DB_SERVICE=os.environ['DB_SERVICE']
     CERT_PATH='/etc/ssl/certs/my.pem'
     KEY_PATH='/etc/ssl/private/my.key'
-    TELEGRAM_TOKEN='XXXXXXXXXXX:YYYYYYYYYYYYYYY' #telegram API token
-    YANDEX_TOKEN='xxxxxxxx-yyyy-????' #rasp.yandex.ru API token
+    TELEGRAM_TOKEN='xxxxxxxx:yyyyyyyyyyyyyyyyyyyyyyyyy'#telegram bot token
+    YANDEX_TOKEN='xxxxxxxx-yyyyyyy-?????'#yandex rasp api token
     LOG_DIR=os.path.join(basedir,'tmp')
     LOG_FILE='ozbot.log'
     LOG_FORMAT='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
     USERS_PATH=os.path.join(basedir,'usr')
-    BOT_HOST_IP='my.domain.com' #host IP or domain name
-    BOT_PORT=8443 #service port
+    BOT_HOST_IP='my.domain.com'#bot host domain name
+    BOT_PORT=8443#service port 
 
 class ProductionConfig(Config):
     DEBUG = False

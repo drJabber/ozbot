@@ -3,6 +3,8 @@ import constants
 import requests
 import json
 import datetime as dt
+import sqlalchemy as sa
+
 #from oz.oz_database import db
 from station import Station
 from scheduleitem import ScheduleItem
@@ -46,3 +48,46 @@ def load_directions(code):
 	return directions
 
 
+def find_station_in_db(station, current_location):
+	engine=sa.create_engine('postgresql+psycopg2://ozbot@localhost/ozbot')
+	connection = engine.connect()
+	sql='select id, name_esr, name_express, name_osm,esr,express, location '+ \
+		'from rzd.stations ' + \
+		'where upper(name_esr) like upper(\'%{0:s}%\') or upper(name_express) like upper(\'%{0:s}%\') or upper(name_osm) like upper(\'%{0:s}%\') ' + \
+		'order by ST_Distance(location,ST_GeogFromText(\'SRID=4326;POINT({1:0.8f} {2:0.8f})\')) asc '
+	sql_f=sql.format(station, current_location.longitude, current_location.latitude)
+	
+	result=engine.execute(sa.text(sql_f))
+
+	r=[]
+	for row in result:
+		express=row['express']
+		if  express and express!='':
+			r.append(express)
+	
+	connection.close()
+
+	return r
+
+
+def load_custom_destinations(session):
+	found_stations=find_station_in_db(session.custom_destination_pattern, session.location)
+	yandex_stations=[]
+
+	for s in found_stations:
+		r = requests.get("https://api.rasp.yandex.net/v1.0/schedule/?" +
+				    "apikey=" + app.config['YANDEX_TOKEN'] +
+				    "&format=json" +
+				    "&station=" + s +
+				    "&lang=ru" +
+				    "&transport_types=suburban" +
+				    "&event=arrival"+
+				    "&date=" + dt.datetime.today().strftime('%Y-%m-%d')+
+				    "&system=express" )
+		try:
+			ys=r.json()["station"]
+			yandex_stations.append([ys["code"], ys["title"]])
+		except:
+			pass
+
+	return yandex_stations

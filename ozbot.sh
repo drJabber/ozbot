@@ -36,6 +36,15 @@ do_start () {
     start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER --chuid $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
     log_end_msg $?
 }
+
+do_go () {
+    export APP_SETTINGS="config.DevelopmentConfig"
+    export DB_URL="postgresql://ozbot@localhost/ozbot"
+    export DB_SERVICE=
+
+    $DAEMON $DAEMON_OPTS
+}
+
 do_stop () {
     log_daemon_msg "Stopping system $DAEMON_NAME daemon"
     start-stop-daemon --stop --pidfile $PIDFILE --retry 10
@@ -45,6 +54,10 @@ do_stop () {
 case "$1" in
 
     start|stop)
+        do_${1}
+        ;;
+
+    go)
         do_${1}
         ;;
 
